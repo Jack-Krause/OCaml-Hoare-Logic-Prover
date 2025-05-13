@@ -31,10 +31,45 @@ type cmd =
   | Seq of cmd * cmd
   | If of bool_expr * cmd * cmd
   | While of bool_expr * cmd
+  
+
+(* evaluate post-conditions after assignments *)
+let rec substitute_expr (sub, e1) e2 =
+  match e2 with
+  | Var x -> 
+    (
+      if x = sub then e1
+      else Var x
+    )
+  | Const _ -> e2
+  | BinOp (op, left, right) -> 
+    (BinOp(op, substitute_expr (sub, e1) left, substiture_expr (sub, e1) right))
+  | UnOp (op, expr) -> UnOp (op, substitute_expr (sub, e1) expr)
+  | _ -> Raise ("Error with substitution")
 
 
+let rec sub_bool_expr (sub, b1) b2 =
+  match b2 with
+  | Compare (op, e1, e2) ->
+    (
+      Compare 
+      (
+      op, 
+      sub_bool_expr (sub, e1) b2, 
+      sub_bool_expr (sub, e2) b2
+      )
+    )
+  | BoolConst _ -> b2
+  | BoolBin (op, e1, e2) ->
+    (
+      BoolBin
+      (
+        op,
+        sub_bool_expr (sub, e1) b2,
+        sub_bool_expr (sub, e2) b2
+      )
 
-(* evaluate post-conditions after*)
+    )
 
 
 
