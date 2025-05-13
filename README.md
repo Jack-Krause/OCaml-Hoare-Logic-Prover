@@ -7,7 +7,7 @@ This system is used for formal proofs about a property (or post-condition) of th
 The state refers to the value of the program's variables.
 The proof assumes a property (or pre-condition) regarding the state before the execution of the program.
 
-The goal of Floyd-Hoard logic is to create statements in the form of ```{P} C {Q}```, where:
+The goal of Floyd-Hoare logic is to create statements in the form of ```{P} C {Q}```, where:
 
 P: logical statements about the state before execution (pre-conditions)
 
