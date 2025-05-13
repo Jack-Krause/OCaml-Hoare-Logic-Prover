@@ -34,6 +34,7 @@ type cmd =
 
 
 
+(* evaluate post-conditions after*)
 
 
 

@@ -1,0 +1,5 @@
+(executable
+ (name fl_prover)
+ (libraries floyd_hoare_solver))
+
+

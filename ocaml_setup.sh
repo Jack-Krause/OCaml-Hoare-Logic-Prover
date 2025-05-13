@@ -15,3 +15,6 @@
 # # install core tools
 # opam install dune utop merlin ocaml-lsp-server
 
+# # get started
+# & opam env --switch=4.14.0 --shell=powershell | Invoke-Expression
+# dune build
