@@ -10,7 +10,7 @@ type bin_arith =
 
 (* unary operator definitions *)
 type un_arith = Neg
-type cmp = Eq | New | Lt | Le | Gt | Ge
+type cmp = Eq | Neq | Lt | Le | Gt | Ge
 type bin_bool = And | Or
 
 type expr =
@@ -20,6 +20,7 @@ type expr =
   | UnOp of un_arith  * expr
 
 type bool_expr =
+  (* | Compare of cmp * bool_expr * bool_expr *)
   | Compare of cmp * expr * expr
   | BoolConst of bool
   | BoolBin of bin_bool * bool_expr * bool_expr
@@ -43,32 +44,35 @@ let rec substitute_expr (sub, e1) e2 =
     )
   | Const _ -> e2
   | BinOp (op, left, right) -> 
-    (BinOp(op, substitute_expr (sub, e1) left, substiture_expr (sub, e1) right))
+    (BinOp(op, substitute_expr (sub, e1) left, substitute_expr (sub, e1) right))
   | UnOp (op, expr) -> UnOp (op, substitute_expr (sub, e1) expr)
-  | _ -> Raise ("Error with substitution")
 
 
 let rec sub_bool_expr (sub, b1) b2 =
   match b2 with
-  | Compare (op, e1, e2) ->
+  | Compare (op, left, right) ->
     (
       Compare 
       (
       op, 
-      sub_bool_expr (sub, e1) b2, 
-      sub_bool_expr (sub, e2) b2
+      sub_bool_expr (sub, b1) left, 
+      sub_bool_expr (sub, b1) right
       )
     )
   | BoolConst _ -> b2
-  | BoolBin (op, e1, e2) ->
+  | BoolBin (op, left, right) ->
     (
       BoolBin
       (
         op,
-        sub_bool_expr (sub, e1) b2,
-        sub_bool_expr (sub, e2) b2
+        sub_bool_expr (sub, b1) left,
+        sub_bool_expr (sub, b1) right
       )
-
+    )
+  | Not e1 -> 
+    (
+      Not
+      (sub_bool_expr (sub, b1) e1)
     )
 
 
