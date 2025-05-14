@@ -97,4 +97,10 @@ let () =
     "Test 6 (BoolBin + Not)";
     ()
 
-    
+let () =
+  let pre = Compare (Eq, Var "x", Const 3) in
+  let cmd = Assign ("x", BinOp (Add, Var "x", Const 1)) in
+  let post = Compare (Eq, BinOp (Add, Var "x", Const 1), Const 4) in
+  let result = prove pre cmd post in
+  Printf.printf "Test 7 (Hoare Assignment): %s\n" (if result then "PASS" else "FAIL")
+  ()

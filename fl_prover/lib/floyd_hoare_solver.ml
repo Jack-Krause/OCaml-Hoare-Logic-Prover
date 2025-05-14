@@ -75,6 +75,22 @@ let rec sub_bool_expr (sub, b1) b2 =
       (sub_bool_expr (sub, b1) e1)
     )
 
+    
+
+let prove (pre : bool_expr) (cmd : cmd) (post : bool_expr) : bool = 
+  let rec aux (acc_str : str) (p : bool_expr) (c : cmd) (p : bool_expr) : bool =
+    match c with
+    | 
+
+
+  in aux "1" pre cmd post
+
+
+
+
+
+let step_str (acc_str : str) (pre : bool_expr) (cmd : cmd) (post : bool_expr) =
+
 
 
 
