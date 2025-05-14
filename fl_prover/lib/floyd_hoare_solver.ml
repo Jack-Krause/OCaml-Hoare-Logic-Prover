@@ -78,18 +78,38 @@ let rec sub_bool_expr (sub, b1) b2 =
     
 
 let prove (pre : bool_expr) (cmd : cmd) (post : bool_expr) : bool = 
-  let rec aux (acc_str : str) (p : bool_expr) (c : cmd) (p : bool_expr) : bool =
+  let rec aux (d : int w : int) (pre_c : bool_expr) (c : cmd) (post_c : bool_expr) : bool =
+    step_str (d, w) pre_c c post_c
     match c with
-    | 
+    | Assign (sub, e1) ->
+      (
+        substitute_expr (sub, 1) pre_c
+      )
+    | Seq (c1, c2) ->
+      (
+        let q = (aux (d + 1, 1) pre_c c1 post_c) in
+          (aux (d + 1, 2) q post_c)
+      )
+    | If (b_exp, c1, c2) ->
+      (
+        (* Not sure if the following if-statement will work *)
+        if b_exp then aux (d + 1, 1) pre_c c1 post_c
+        else aux (d + 1, 1) pre_c c2 post_c 
+      )
+    |
+    | Skip ->
+      (
+        (* Not sure what to do with these or if we even need them*)
+      )
 
 
-  in aux "1" pre cmd post
+  in aux (1, 1) pre cmd post
 
 
 
 
 
-let step_str (acc_str : str) (pre : bool_expr) (cmd : cmd) (post : bool_expr) =
+let step_str (d : int, w : int) (pre : bool_expr) (cmd : cmd) (post : bool_expr) =
 
 
 
