@@ -96,7 +96,10 @@ let prove (pre : bool_expr) (cmd : cmd) (post : bool_expr) : bool =
         if b_exp then aux (d + 1, 1) pre_c c1 post_c
         else aux (d + 1, 1) pre_c c2 post_c 
       )
-    |
+    | While (b_exp, c1) ->
+      (
+        if b_exp then aux (d + 1, 1) (subtitute_expr pre_c b_exp)
+      )
     | Skip ->
       (
         (* Not sure what to do with these or if we even need them*)
