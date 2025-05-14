@@ -55,8 +55,8 @@ let rec sub_bool_expr (sub, b1) b2 =
       Compare 
       (
       op, 
-      sub_bool_expr (sub, b1) left, 
-      sub_bool_expr (sub, b1) right
+      substitute_expr (sub, b1) left, 
+      substitute_expr (sub, b1) right
       )
     )
   | BoolConst _ -> b2

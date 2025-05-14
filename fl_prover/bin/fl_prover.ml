@@ -27,7 +27,7 @@ let rec str_bool_expr e =
       let op_str = match op with
       | Eq -> "==" | Neq -> "!==" | Lt -> "<" | Le -> "<=" | Gt -> ">" | Ge -> ">="
       in
-      "(" ^ str_bool_expr left ^ op_str ^ str_bool_expr right ^ ")"
+      "(" ^ str_expr left ^ op_str ^ str_expr right ^ ")"
     )
   | BoolConst true -> "True"
   | BoolConst false -> "False"
