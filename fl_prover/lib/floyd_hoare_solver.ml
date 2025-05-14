@@ -78,7 +78,7 @@ let rec sub_bool_expr (sub, b1) b2 =
     
 
 let prove (pre : bool_expr) (cmd : cmd) (post : bool_expr) : bool = 
-  let rec aux (d : int w : int) (pre_c : bool_expr) (c : cmd) (post_c : bool_expr) : bool =
+  let rec aux (d, w) pre_c c post_c =
     step_str (d, w) pre_c c post_c
     match c with
     | Assign (sub, e1) ->
