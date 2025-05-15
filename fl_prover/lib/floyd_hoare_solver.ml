@@ -212,6 +212,7 @@ Printf.printf "%s%d.%d: {%s} %s {%s}\n"
 let rec simplify_bool_expr b =
   let b =
     match b with
+    | Compare (Gt, Var v, Const n) -> simplify_bool_expr (Compare (Ge, Var v, Const (n+1)))
     | Compare (Eq, BinOp (Add, left, Const c), Const d) ->
       (
         let diff = d - c in
@@ -274,6 +275,9 @@ let rec simplify_bool_expr b =
     
 
 let prove (pre : bool_expr) (cmd : cmd) (post : bool_expr) : bool = 
+  let pre0 = simplify_bool_expr pre in
+  let post0 = simplify_bool_expr post in
+
   let rec aux (d, w) pre_c c post_c =
     step_str (d, w) pre_c c post_c;
     match c with
@@ -314,7 +318,7 @@ let prove (pre : bool_expr) (cmd : cmd) (post : bool_expr) : bool =
       )
 
 
-  in aux (1, 1) pre cmd post
+  in aux (1, 1) pre0 cmd post0
 
 
 

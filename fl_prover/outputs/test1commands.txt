@@ -1,0 +1,23 @@
+# #require "fl_prover";;
+# open Floyd_hoare_solver;;
+
+(* 1) Precondition:  w > 3 *)
+let pre = Compare (Gt, Var "w", Const 3);;
+
+(* 2) The “if…else” plus the final assignment, as one Seq: *)
+let cmd =
+  Seq (
+    If (
+      Compare (Gt, Var "w", Const 4),          
+      Assign ("y", BinOp (Sub, Var "w", Const 2)), 
+      Assign ("y", BinOp (Sub, Var "w", Const 1))  
+    ),
+    Assign ("y", BinOp (Add, Var "y", Var "w")) 
+  )
+;;
+
+(* 3) Postcondition:  y > 6 *)
+let post = Compare (Gt, Var "y", Const 6);;
+
+(* 4) Run the proof: *)
+utop # prove pre cmd post;;

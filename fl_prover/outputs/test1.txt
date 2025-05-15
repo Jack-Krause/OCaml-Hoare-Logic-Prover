@@ -1,0 +1,35 @@
+─( 21:27:25 )─< command 0 >──────────────────────────────────────────{ counter: 0 }─
+utop # #require "fl_prover";;
+─( 21:27:25 )─< command 1 >──────────────────────────────────────────{ counter: 0 }─
+utop # open Floyd_hoare_solver;;
+─( 21:27:37 )─< command 2 >──────────────────────────────────────────{ counter: 0 }─
+utop # let pre = Compare (Gt, Var "w", Const 3);;
+val pre : bool_expr = Compare (Gt, Var "w", Const 3)
+─( 21:27:41 )─< command 3 >──────────────────────────────────────────{ counter: 0 }─
+utop # let cmd =
+Seq (
+If (
+Compare (Gt, Var "w", Const 4),
+Assign ("y", BinOp (Sub, Var "w", Const 2)),
+Assign ("y", BinOp (Sub, Var "w", Const 1))
+),
+Assign ("y", BinOp (Add, Var "y", Var "w"))
+);;
+val cmd : cmd =
+  Seq
+   (If (Compare (Gt, Var "w", Const 4),
+     Assign ("y", BinOp (Sub, Var "w", Const 2)),
+     Assign ("y", BinOp (Sub, Var "w", Const 1))),
+   Assign ("y", BinOp (Add, Var "y", Var "w")))
+─( 21:28:19 )─< command 4 >──────────────────────────────────────────{ counter: 0 }─
+utop # let post = Compare (Gt, Var "y", Const 6);;
+val post : bool_expr = Compare (Gt, Var "y", Const 6)
+─( 21:29:51 )─< command 5 >──────────────────────────────────────────{ counter: 0 }─
+utop # prove pre cmd post;;
+1.1: {(w>3)} seq {(y>6)}
+  2.1: {(w>3)} if {((y + w)>6)}
+    3.1: {((w>3)&&(w>4))} y := (w - 2) {((y + w)>6)}
+    3.2: {((w>3)&&NOT((w>4)))} y := (w - 1) {((y + w)>6)}
+  2.2: {((y + w)>6)} y := (y + w) {(y>6)}
+- : bool = false
+─( 21:30:04 )─< command 6 >──────────────────────────────────────────{ counter: 0 }─utop #       

@@ -74,3 +74,29 @@ let post = Compare (Eq, Var "x", Const 1);;
 prove pre cmd post;;
 ```
 
+
+#### Test case
+```
+#require "fl_prover";;
+
+open Floyd_hoare_solver;;
+
+let pre = Compare (Gt, Var "w", Const 3);;
+
+let cmd =
+  Seq (
+    If (
+      Compare (Gt, Var "w", Const 4),          
+      Assign ("y", BinOp (Sub, Var "w", Const 2)), 
+      Assign ("y", BinOp (Sub, Var "w", Const 1))  
+    ),
+    Assign ("y", BinOp (Add, Var "y", Var "w")) 
+  )
+;;
+
+let post = Compare (Gt, Var "y", Const 6);;
+
+utop # prove pre cmd post;;
+```
+
+
