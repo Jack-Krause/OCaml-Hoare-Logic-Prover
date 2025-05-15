@@ -212,7 +212,29 @@ Printf.printf "%s%d.%d: {%s} %s {%s}\n"
 let rec simplify_bool_expr b =
   let b =
     match b with
-    | Compare (Gt, Var v, Const n) -> simplify_bool_expr (Compare (Ge, Var v, Const (n+1)))
+| Compare (Gt, lhs, Const n) ->
+    simplify_bool_expr (Compare (Ge, lhs, Const (n+1)))
+    | Compare (Ge,
+      BinOp (Add,
+        BinOp (Sub, Var v1, Const c1),
+        Var v2
+      ),
+      Const d
+    ) when v1 = v2 ->
+      let num = d + c1 in
+      let k   = (num + 1) / 2 in
+      simplify_bool_expr (Compare (Ge, Var v1, Const k))
+
+| Compare (Ge,
+    BinOp (Add,
+      Var v2,
+      BinOp (Sub, Var v1, Const c1)
+    ),
+    Const d
+  ) when v1 = v2 ->
+    let num = d + c1 in
+    let k   = (num + 1) / 2 in
+    simplify_bool_expr (Compare (Ge, Var v1, Const k))
     | Compare (Eq, BinOp (Add, left, Const c), Const d) ->
       (
         let diff = d - c in
@@ -226,7 +248,8 @@ let rec simplify_bool_expr b =
     | Compare (op, l, r) ->
         let l' = simplify_expr l in
         let r' = simplify_expr r in
-        (match l', r' with
+        (
+        match l', r' with
          | Const a, Const b ->
              let v = match op with
                | Eq  -> a = b | Neq -> a <> b
@@ -234,7 +257,8 @@ let rec simplify_bool_expr b =
                | Gt  -> a > b  | Ge  -> a >= b
              in BoolConst v
          | _ ->
-             Compare (op, l', r'))
+             Compare (op, l', r')
+        )
     
     | BoolBin (Or, BoolConst false, x) -> x
     | BoolBin (Or, BoolConst true,  _) -> BoolConst true
@@ -243,8 +267,17 @@ let rec simplify_bool_expr b =
 
     | BoolConst _ as x -> x
 
-    | BoolBin (And, x, y) ->
-        BoolBin (And, simplify_bool_expr x, simplify_bool_expr y)
+    | BoolBin (And,
+      Compare (Ge, Var v1, Const n1),
+      Compare (Ge, Var v2, Const n2)
+      ) when v1 = v2 ->
+      Compare (Ge, Var v1, Const (max n1 n2))
+
+    | BoolBin (And, left, right) ->
+      BoolBin (And,
+      simplify_bool_expr left,
+      simplify_bool_expr right
+      )
 
     | BoolBin (Or,  x, y) ->
         BoolBin (Or,  simplify_bool_expr x, simplify_bool_expr y)
@@ -294,22 +327,23 @@ let prove (pre : bool_expr) (cmd : cmd) (post : bool_expr) : bool =
       )
     | Seq (c1, c2) ->
       (
-        let mid = infer_precondition c2 post_c in
-          let r1 = aux (d + 1, 1) pre_c c1 mid in
-            let r2 = aux (d + 1, 2) mid c2 post_c in
-              r1 && r2
+        let mid0 = simplify_bool_expr (infer_precondition c2 post_c) in
+        let r1   = aux (d+1,1) pre_c c1 mid0 in
+        let r2   = aux (d+1,2) mid0   c2 post_c in
+        r1 && r2
+      )
         (* let q = (aux (d + 1, 1) pre_c c1 post_c) in
           (aux (d + 1, 2) q post_c) *)
-      )
     | If (b_exp, c1, c2) ->
       (
-        let pre_1 = BoolBin (And, pre_c, b_exp) in
-          let pre_2 = BoolBin (And, pre_c, Not b_exp) in
-            let r1 = aux (d + 1, 1) pre_1 c1 post_c in
-              let r2 = aux (d + 1, 2) pre_2 c2 post_c in
-                r1 && r2 
-        (* if b_exp then aux (d + 1, 1) pre_c c1 post_c
-        else aux (d + 1, 1) pre_c c2 post_c  *)
+        let b_simp = simplify_bool_expr b_exp in
+
+        let pre_1 = simplify_bool_expr (BoolBin (And, pre_c, b_simp)) in
+        let pre_2 = simplify_bool_expr (BoolBin (And, pre_c, Not b_simp)) in
+
+        let r1 = aux (d + 1, 1) pre_1 c1 post_c in
+        let r2 = aux (d + 1, 2) pre_2 c2 post_c in
+        r1 && r2
       )
     | While (_, _) ->
       (
