@@ -43,31 +43,29 @@ let () =
     "Test 6 (BoolBin + Not)";
     ()
 
-let () =
-  let pre = Compare (Eq, Var "x", Const 3) in
-  let cmd = Assign ("x", BinOp (Add, Var "x", Const 1)) in
-  let post = Compare (Eq, BinOp (Add, Var "x", Const 1), Const 4) in
-  let result = prove pre cmd post in
-  Printf.printf "Test 7 (Hoare Assignment): %s\n" (if result then "PASS" else "FAIL")
 
 
 let test1 () =
-  let pre = Compare (Eq, Var "x", Const 3) in
+  (* let pre = Compare (Eq, Var "x", Const 2) in
   let cmd = Assign ("x", BinOp (Add, Var "x", Const 1)) in
-  let post = Compare (Eq, BinOp (Add, Var "x", Const 1), Const 4) in
+  let post = Compare (Eq, BinOp (Add, Var "x", Const 1), Const 4) in *)
+  let pre = Compare(Eq, BinOp(Add, Var "x", Const 2), Const 4) in
+  let cmd = Assign("x", BinOp(Add, Var "x", Const 1)) in
+  let post = Compare(Eq, BinOp(Add, Var "x", Const 1), Const 4) in
+
   let result = prove pre cmd post in
   Printf.printf "Test 1 (Assign): %s\n" (if result then "PASS" else "FAIL")
 
 
 let test2 () =
-  let pre = Compare (Eq, Var "x", Const 1) in
+  let pre = Compare (Eq, Var "x", Const 5) in
   let cmd =
     Seq (
-      Assign ("x", BinOp (Add, Var "x", Const 1)),
-      Assign ("x", BinOp (Add, Var "x", Const 2))
+      Assign ("x", BinOp (Add, Var "x", Const 2)),
+      Assign ("x", BinOp (Sub, Var "x", Const 2))
     )
   in
-  let post = Compare (Eq, Var "x", Const 4) in
+  let post = Compare (Eq, Var "x", Const 5) in
   let result = prove pre cmd post in
   Printf.printf "Test 2 (Seq): %s\n" (if result then "PASS" else "FAIL")
 

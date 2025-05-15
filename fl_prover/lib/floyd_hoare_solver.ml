@@ -1,4 +1,3 @@
-
 (* AST definitions *)
 
 (* binary operator definitions *)
@@ -155,6 +154,111 @@ Printf.printf "%s%d.%d: {%s} %s {%s}\n\n\n"
   (str_bool_expr post)
 
 
+  let rec simplify_expr e =
+    match e with
+    | BinOp (Sub, BinOp (Add, l, r1), r2) when r1 = r2 ->
+      simplify_expr l
+    | BinOp (Add, BinOp (Sub, l, r1), r2) when r1 = r2 ->
+      simplify_expr l
+    | BinOp (Add, left, right) ->
+      let left = simplify_expr left in
+        let right = simplify_expr right in
+        (
+          match left, right with
+          | Const a, Const b -> Const (a + b)
+          | _, Const 0 -> left
+          | BinOp (Add, inner, Const c), Const d ->
+            simplify_expr (BinOp (Add, inner, Const (c + d)))
+          | _ -> BinOp (Add, left, right)
+        )
+    | BinOp (Sub, left, right) ->
+      let left = simplify_expr left in
+        let right = simplify_expr right in
+        (
+          match left, right with
+          | Const a, Const b -> Const (a - b)
+          | _, Const 0 -> left
+          | _ -> BinOp (Sub, left, right)
+        )
+    | BinOp (Mul, left, right) ->
+      let left = simplify_expr left in
+        let right = simplify_expr right in
+        (
+          match left, right with
+          | Const a, Const b -> Const (a * b)
+          | _, Const 1 -> left
+          | _ -> BinOp (Mul, left, right)
+        )
+    | BinOp (Div, left, right) ->
+      let left = simplify_expr left in
+        let right = simplify_expr right in
+        (
+          match left, right with
+          | Const a, Const b -> Const (a / b)
+          | _, Const 1 -> left
+          | _ -> BinOp (Div, left, right)
+        )
+    | UnOp (Neg, exp) ->
+      (
+        match simplify_expr exp with
+        | Const a -> Const (-a)
+        | exp2 -> UnOp (Neg, exp2)
+      )
+    | Var _ | Const _ -> e
+
+
+
+let rec simplify_bool_expr b =
+  let b =
+    match b with
+    | BoolBin (Or, BoolConst false, x) -> x
+    | BoolBin (Or, BoolConst true,  _) -> BoolConst true
+    | BoolBin (Or, x, BoolConst false) -> x
+    | BoolBin (Or, _, BoolConst true)  -> BoolConst true
+    | Compare (op, l, r) ->
+        let l' = simplify_expr l in
+        let r' = simplify_expr r in
+        (match l', r' with
+         | Const a, Const b ->
+             let v = match op with
+               | Eq  -> a = b | Neq -> a <> b
+               | Lt  -> a < b  | Le  -> a <= b
+               | Gt  -> a > b  | Ge  -> a >= b
+             in BoolConst v
+         | _ ->
+             Compare (op, l', r'))
+
+    | BoolConst _ as x -> x
+
+    | BoolBin (And, x, y) ->
+        BoolBin (And, simplify_bool_expr x, simplify_bool_expr y)
+
+    | BoolBin (Or,  x, y) ->
+        BoolBin (Or,  simplify_bool_expr x, simplify_bool_expr y)
+
+    | Not x ->
+        Not (simplify_bool_expr x)
+  in
+  match b with
+  | BoolBin (And, BoolConst true,  x) -> x
+  | BoolBin (And, BoolConst false, _) -> BoolConst false
+  | BoolBin (And, x, BoolConst true)  -> x
+  | BoolBin (And, _, BoolConst false) -> BoolConst false
+
+  | BoolBin (Or, Not a, b) when a = b -> BoolConst true
+  | BoolBin (Or, a, Not b) when a = b -> BoolConst true
+
+  | BoolBin (Or, BoolConst false, x)  -> x
+  | BoolBin (Or, BoolConst true,  _)  -> BoolConst true
+  | BoolBin (Or, x, BoolConst false)  -> x
+  | BoolBin (Or, _, BoolConst true)   -> BoolConst true
+
+  | Not (BoolConst true)  -> BoolConst false
+  | Not (BoolConst false) -> BoolConst true
+
+  | _ -> b
+
+
     
 
 let prove (pre : bool_expr) (cmd : cmd) (post : bool_expr) : bool = 
@@ -167,7 +271,10 @@ let prove (pre : bool_expr) (cmd : cmd) (post : bool_expr) : bool =
       )
     | Assign (x, e1) ->
       (
-        sub_bool_expr (x, e1) post_c = pre_c
+        let wp = simplify_bool_expr (sub_bool_expr (x, e1) post_c) in
+          let pre_s = simplify_bool_expr pre_c in
+            let imp = simplify_bool_expr (BoolBin (Or, Not pre_s, wp)) in
+              imp = BoolConst true
       )
     | Seq (c1, c2) ->
       (
