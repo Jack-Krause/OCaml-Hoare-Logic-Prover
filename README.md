@@ -20,3 +20,17 @@ C: the program
 
 Total correctness: ```[P] C [Q]```
 
+## Usage (In Ocaml utop - toplevel)
+example usage:
+
+
+```
+# #require "floyd_hoare_solver";;
+# open Floyd_hoare_solver;;
+# let pre  = Compare (Eq, Var "x", Const 0);;
+# let cmd  = Assign ("x", BinOp (Add, Var "x", Const 1));;
+# let post = Compare (Eq, Var "x", Const 1);;
+# prove pre cmd post;;
+- : bool = true
+```
+
