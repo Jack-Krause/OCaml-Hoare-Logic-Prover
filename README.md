@@ -38,7 +38,9 @@ utop
 Close the Ocaml utop with ctrl+D
 
 
-example usage (ignore first '#'):
+#### Example Usage
+
+(ignore the first '#'s)
 
 
 ```
