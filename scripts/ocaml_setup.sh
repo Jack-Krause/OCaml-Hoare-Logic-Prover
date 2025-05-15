@@ -17,4 +17,6 @@
 
 # # get started
 # & opam env --switch=4.14.0 --shell=powershell | Invoke-Expression
+# dune clean
 # dune build
+# dune exec bin/fl_prover.exe

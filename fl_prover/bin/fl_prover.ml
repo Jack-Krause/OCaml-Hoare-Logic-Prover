@@ -4,60 +4,6 @@
 open Floyd_hoare_solver
 
 
-(* Output expressions in a string format *)
-let rec str_expr e = 
-  match e with
-  | Var x -> x
-  | Const n -> string_of_int n
-  | BinOp (op, left, right) ->
-    (
-      let op_str = match op with
-      | Add -> "+" | Sub -> "-" | Mul -> "*" | Div -> "/"
-      in
-      "(" ^ str_expr left ^ " " ^ op_str ^ " " ^ str_expr right ^ ")"
-    )
-  | UnOp (_, expr) -> "~ (" ^ str_expr expr ^ ")"
-
-
-(* Output bool expressions in a string format *)
-let rec str_bool_expr e =
-  match e with
-  | Compare (op, left, right) ->
-    (
-      let op_str = match op with
-      | Eq -> "==" | Neq -> "!==" | Lt -> "<" | Le -> "<=" | Gt -> ">" | Ge -> ">="
-      in
-      "(" ^ str_expr left ^ op_str ^ str_expr right ^ ")"
-    )
-  | BoolConst true -> "True"
-  | BoolConst false -> "False"
-  | BoolBin (logical_op, left, right) ->
-    (
-      let logical_op_str = match logical_op with
-      | And -> "&&" | Or -> "||" in 
-      "(" ^ str_bool_expr left ^ logical_op_str ^ str_bool_expr right ^ ")"
-    )
-  | Not exp -> "NOT(" ^ str_bool_expr exp ^ ")"
-
-
-let assert_expr_equal actual expected msg =
-  if actual = expected then
-    Printf.printf "PASS: %s\n" msg
-  else
-    let exp_str = str_expr expected in
-    let act_str = str_expr actual in
-      Printf.printf "FAIL: %s\nExpected: %s\nActual:   %s\n"
-      msg exp_str act_str
-
-
-let assert_bool_expr_equal actual expected msg =
-  if actual = expected then
-    Printf.printf "PASS: %s\n" msg
-  else
-    let str_exp = str_bool_expr expected in
-    let str_act = str_bool_expr actual in
-      Printf.printf "FAIL: %s\nExpected: %s\nActual:   %s\n"
-      msg str_exp str_act
 
 
 (* TESTS - for substitutions *)
@@ -103,4 +49,53 @@ let () =
   let post = Compare (Eq, BinOp (Add, Var "x", Const 1), Const 4) in
   let result = prove pre cmd post in
   Printf.printf "Test 7 (Hoare Assignment): %s\n" (if result then "PASS" else "FAIL")
-  ()
+
+
+let test1 () =
+  let pre = Compare (Eq, Var "x", Const 3) in
+  let cmd = Assign ("x", BinOp (Add, Var "x", Const 1)) in
+  let post = Compare (Eq, BinOp (Add, Var "x", Const 1), Const 4) in
+  let result = prove pre cmd post in
+  Printf.printf "Test 1 (Assign): %s\n" (if result then "PASS" else "FAIL")
+
+
+let test2 () =
+  let pre = Compare (Eq, Var "x", Const 1) in
+  let cmd =
+    Seq (
+      Assign ("x", BinOp (Add, Var "x", Const 1)),
+      Assign ("x", BinOp (Add, Var "x", Const 2))
+    )
+  in
+  let post = Compare (Eq, Var "x", Const 4) in
+  let result = prove pre cmd post in
+  Printf.printf "Test 2 (Seq): %s\n" (if result then "PASS" else "FAIL")
+
+
+let test3 () =
+  let pre = BoolConst true in
+  let cond = Compare (Eq, Var "flag", Const 0) in
+  let then_branch = Assign ("x", Const 1) in
+  let else_branch = Assign ("x", Const 2) in
+  let cmd = If (cond, then_branch, else_branch) in
+  let post = BoolBin (Or,
+               Compare (Eq, Var "x", Const 1),
+               Compare (Eq, Var "x", Const 2)) in
+  let result = prove pre cmd post in
+  Printf.printf "Test 3 (If): %s\n" (if result then "PASS" else "FAIL")
+
+let test4 () =
+  let pre = Compare (Eq, Var "x", Const 0) in
+  let cmd = Assign ("x", BinOp (Add, Var "x", Const 2)) in
+  let post = Compare (Eq, Var "x", Const 3) in
+  let result = prove pre cmd post in
+  Printf.printf "Test 4 (Expected FAIL): %s\n" (if result then "FAIL (wrongly passed)" else "PASS (correctly failed)")
+
+
+let () = 
+  test1 ();
+  test2 ();
+  test3 ();
+  test4 ()
+
+
