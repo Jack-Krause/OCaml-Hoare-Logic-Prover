@@ -143,7 +143,7 @@ let infer_precondition (cmd : cmd) (post : bool_expr) : bool_expr =
 
 let step_str (d, w) pre cmd post =
   let indent = String.make (2 * (d - 1)) ' ' in
-Printf.printf "%s%d.%d: {%s} %s {%s}\n\n\n"
+Printf.printf "%s%d.%d: {%s} %s {%s}\n"
   indent d w
   (str_bool_expr pre)
   (match cmd with
