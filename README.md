@@ -25,6 +25,7 @@ example usage:
 
 
 ```
+PS> utop
 # #require "floyd_hoare_solver";;
 # open Floyd_hoare_solver;;
 # let pre  = Compare (Eq, Var "x", Const 0);;
@@ -32,5 +33,6 @@ example usage:
 # let post = Compare (Eq, Var "x", Const 1);;
 # prove pre cmd post;;
 - : bool = true
+(ctrl-d to exit)
 ```
 
