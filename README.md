@@ -27,6 +27,7 @@ Total correctness: ```[P] C [Q]```
 
 
 ```
+cd fl_prover
 & opam env --switch=4.14.0 --shell=powershell | Invoke-Expression
 dune clean
 dune build
