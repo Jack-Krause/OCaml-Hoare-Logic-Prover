@@ -45,7 +45,7 @@ Close the Dune utop with ctrl+D
 
 
 ```
-utop # #require "fl_prover";;# open Floyd_hoare_solver;;
+utop # #require "fl_prover";;
 utop # open Floyd_hoare_solver;;
 
 utop # let pre = Compare (Eq, Var "x", Const 0);;
