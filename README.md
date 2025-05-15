@@ -20,7 +20,7 @@ C: the program
 
 Total correctness: ```[P] C [Q]```
 
-## Usage (In Ocaml utop - toplevel)
+## Usage (In Ocaml toplevel)
 
 #### Setup (created) Ocaml Env
 (in Powershell)
@@ -51,6 +51,5 @@ Close the Ocaml utop with ctrl+D
 # let post = Compare (Eq, Var "x", Const 1);;
 # prove pre cmd post;;
 - : bool = true
-(ctrl-d to exit)
 ```
 
