@@ -66,7 +66,8 @@ actual toplevel inputs:
 
 
 ```
-#require "fl_prover";;# open Floyd_hoare_solver;;
+#require "fl_prover";;
+open Floyd_hoare_solver;;
 let pre = Compare (Eq, Var "x", Const 0);;
 let cmd = Assign ("x", BinOp (Add, Var "x", Const 1));;
 let post = Compare (Eq, Var "x", Const 1);;
