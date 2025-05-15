@@ -21,11 +21,27 @@ C: the program
 Total correctness: ```[P] C [Q]```
 
 ## Usage (In Ocaml utop - toplevel)
-example usage:
+
+#### Setup (created) Ocaml Env
+(in Powershell)
 
 
 ```
-PS> utop
+& opam env --switch=4.14.0 --shell=powershell | Invoke-Expression
+dune clean
+dune build
+dune exec bin/fl_prover.exe
+utop
+```
+
+
+Close the Ocaml utop with ctrl+D
+
+
+example usage (ignore first '#'):
+
+
+```
 # #require "floyd_hoare_solver";;
 # open Floyd_hoare_solver;;
 # let pre  = Compare (Eq, Var "x", Const 0);;
