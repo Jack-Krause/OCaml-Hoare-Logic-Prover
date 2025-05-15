@@ -90,7 +90,8 @@ let assert_bool_expr_equal actual expected msg =
       Printf.printf "FAIL: %s\nExpected: %s\nActual:   %s\n"
       msg str_exp str_act
 
-(* evaluate post-conditions after assignments *)
+
+
 let rec substitute_expr (sub, e1) e2 =
   match e2 with
   | Var x -> 
@@ -211,10 +212,16 @@ Printf.printf "%s%d.%d: {%s} %s {%s}\n\n\n"
 let rec simplify_bool_expr b =
   let b =
     match b with
-    | BoolBin (Or, BoolConst false, x) -> x
-    | BoolBin (Or, BoolConst true,  _) -> BoolConst true
-    | BoolBin (Or, x, BoolConst false) -> x
-    | BoolBin (Or, _, BoolConst true)  -> BoolConst true
+    | Compare (Eq, BinOp (Add, left, Const c), Const d) ->
+      (
+        let diff = d - c in
+          simplify_bool_expr (Compare (Eq, left, Const diff))
+      )
+    | Compare (Eq, Const d, BinOp (Add, left, Const c)) ->
+      (
+        let diff = d - c in
+          simplify_bool_expr (Compare (Eq, left, Const diff))
+      )
     | Compare (op, l, r) ->
         let l' = simplify_expr l in
         let r' = simplify_expr r in
@@ -227,6 +234,11 @@ let rec simplify_bool_expr b =
              in BoolConst v
          | _ ->
              Compare (op, l', r'))
+    
+    | BoolBin (Or, BoolConst false, x) -> x
+    | BoolBin (Or, BoolConst true,  _) -> BoolConst true
+    | BoolBin (Or, x, BoolConst false) -> x
+    | BoolBin (Or, _, BoolConst true)  -> BoolConst true
 
     | BoolConst _ as x -> x
 
