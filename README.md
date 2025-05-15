@@ -96,7 +96,7 @@ let cmd =
 
 let post = Compare (Gt, Var "y", Const 6);;
 
-utop # prove pre cmd post;;
+prove pre cmd post;;
 ```
 
 
