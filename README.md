@@ -31,11 +31,11 @@ Total correctness: ```[P] C [Q]```
 dune clean
 dune build
 dune exec bin/fl_prover.exe
-utop
+dune utop
 ```
 
 
-Close the Ocaml utop with ctrl+D
+Close the Dune utop with ctrl+D
 
 
 #### Example Usage
@@ -44,12 +44,31 @@ Close the Ocaml utop with ctrl+D
 
 
 ```
-# #require "floyd_hoare_solver";;
-# open Floyd_hoare_solver;;
-# let pre  = Compare (Eq, Var "x", Const 0);;
-# let cmd  = Assign ("x", BinOp (Add, Var "x", Const 1));;
-# let post = Compare (Eq, Var "x", Const 1);;
-# prove pre cmd post;;
-- : bool = true
+utop # #require "fl_prover";;# open Floyd_hoare_solver;;
+utop # open Floyd_hoare_solver;;
+
+utop # let pre = Compare (Eq, Var "x", Const 0);;
+val pre : bool_expr = Compare (Eq, Var "x", Const 0)
+
+utop # let cmd = Assign ("x", BinOp (Add, Var "x", Const 1));;
+val cmd : cmd = Assign ("x", BinOp (Add, Var "x", Const 1))
+
+utop # let post = Compare (Eq, Var "x", Const 1);;
+val post : bool_expr = Compare (Eq, Var "x", Const 1)
+
+utop # prove pre cmd post;;
+1.1: {(x==0)} x := (x + 1) {(x==1)}
+```
+
+
+actual toplevel inputs:
+
+
+```
+#require "fl_prover";;# open Floyd_hoare_solver;;
+let pre = Compare (Eq, Var "x", Const 0);;
+let cmd = Assign ("x", BinOp (Add, Var "x", Const 1));;
+let post = Compare (Eq, Var "x", Const 1);;
+prove pre cmd post;;
 ```
 
