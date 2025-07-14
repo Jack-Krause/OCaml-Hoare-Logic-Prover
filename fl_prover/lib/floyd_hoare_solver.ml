@@ -143,7 +143,7 @@ let infer_precondition (cmd : cmd) (post : bool_expr) : bool_expr =
 
 let step_str (d, w) pre cmd post =
   let indent = String.make (2 * (d - 1)) ' ' in
-Printf.printf "%s%d.%d: {%s} %s {%s}\n"
+Printf.printf "\n%s%d.%d: {%s} %s {%s}\n"
   indent d w
   (str_bool_expr pre)
   (match cmd with
@@ -156,6 +156,8 @@ Printf.printf "%s%d.%d: {%s} %s {%s}\n"
 
 
   let rec simplify_expr e =
+    (* Printf.printf "\n Simplify Expression:%s\n" (str_expr e);
+    flush stdout; *)
     match e with
     | BinOp (Sub, BinOp (Add, l, r1), r2) when r1 = r2 ->
       simplify_expr l
@@ -223,6 +225,9 @@ let rec simplify_bool_expr b =
           simplify_bool_expr (Compare (Eq, left, Const diff))
       )
     | Compare (op, l, r) ->
+        Printf.printf "\nExpression to Simplify (left): %s\n" (str_expr l);
+        Printf.printf "\nExpression to Simplify (right): %s\n" (str_expr r);
+        flush stdout;
         let l' = simplify_expr l in
         let r' = simplify_expr r in
         (match l', r' with
