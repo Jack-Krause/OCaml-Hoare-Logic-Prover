@@ -1,0 +1,3 @@
+(executable
+ (name verify_examples)
+ (libraries fl_prover stdio))
